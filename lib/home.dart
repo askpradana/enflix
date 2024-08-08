@@ -1,8 +1,10 @@
+import 'package:enterkomputer/detail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enterkomputer/controller/home_controller.dart';
 import 'package:enterkomputer/model/movie_model.dart';
+import 'package:logger/logger.dart';
 
 /// HomePage widget that displays a list of now playing and popular movies.
 class HomePage extends GetView<HomeController> {
@@ -10,6 +12,7 @@ class HomePage extends GetView<HomeController> {
 
   @override
   final HomeController controller = Get.put(HomeController());
+  final Logger _logger = Logger();
 
   @override
   Widget build(BuildContext context) {
@@ -72,65 +75,67 @@ class HomePage extends GetView<HomeController> {
 
   /// Card widgets for a movie in the "Now Playing" section.
   Widget _buildMovieCard(MovieModel movie) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
+    return GestureDetector(
+        onTap: () => _navigateToMovieDetail(movie),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: CachedNetworkImage(
-                  imageUrl:
-                      'https://image.tmdb.org/t/p/w200${movie.posterPath}',
-                  width: 160,
-                  height: 240,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: Colors.grey[800]),
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.error, color: Colors.white),
-                ),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          'https://image.tmdb.org/t/p/w200${movie.posterPath}',
+                      width: 160,
+                      height: 240,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          Container(color: Colors.grey[800]),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error, color: Colors.white),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Column(
+                      children: [
+                        _buildAnimatedIconButton(
+                          icon: Icons.favorite,
+                          activeColor: Colors.red,
+                          inactiveColor: Colors.white,
+                          onPressed: () => controller.toggleFavorite(movie),
+                          isActive: movie.isFavorite,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildAnimatedIconButton(
+                          icon: Icons.bookmark,
+                          activeColor: Colors.yellow,
+                          inactiveColor: Colors.white,
+                          onPressed: () => controller.toggleWatchlist(movie),
+                          isActive: movie.isWatchlisted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Column(
-                  children: [
-                    _buildAnimatedIconButton(
-                      icon: Icons.favorite,
-                      activeColor: Colors.red,
-                      inactiveColor: Colors.white,
-                      onPressed: () => controller.toggleFavorite(movie),
-                      isActive: movie.isFavorite,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildAnimatedIconButton(
-                      icon: Icons.bookmark,
-                      activeColor: Colors.yellow,
-                      inactiveColor: Colors.white,
-                      onPressed: () => controller.toggleWatchlist(movie),
-                      isActive: movie.isWatchlisted,
-                    ),
-                  ],
+              const SizedBox(height: 8),
+              SizedBox(
+                width: 160,
+                child: Text(
+                  movie.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 160,
-            child: Text(
-              movie.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 
   /// Header for the "Popular Movies" section.
@@ -177,83 +182,86 @@ class HomePage extends GetView<HomeController> {
 
   /// Builds an item for a popular movie.
   Widget _buildPopularMovieItem(PopularMovie movie) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: CachedNetworkImage(
-                  imageUrl:
-                      'https://image.tmdb.org/t/p/w300${movie.posterPath}',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: Colors.grey[800]),
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.error, color: Colors.white),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Column(
-                  children: [
-                    _buildAnimatedIconButton(
-                      icon: Icons.favorite,
-                      activeColor: Colors.red,
-                      inactiveColor: Colors.white,
-                      onPressed: () => controller.toggleFavorite(movie),
-                      isActive: movie.isFavorite,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildAnimatedIconButton(
-                      icon: Icons.bookmark,
-                      activeColor: Colors.yellow,
-                      inactiveColor: Colors.white,
-                      onPressed: () => controller.toggleWatchlist(movie),
-                      isActive: movie.isWatchlisted,
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    movie.voteAverage.toStringAsFixed(1),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+    return GestureDetector(
+      onTap: () => _navigateToMovieDetail(movie),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12.0),
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        'https://image.tmdb.org/t/p/w300${movie.posterPath}',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Container(color: Colors.grey[800]),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error, color: Colors.white),
                   ),
                 ),
-              ),
-            ],
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Column(
+                    children: [
+                      _buildAnimatedIconButton(
+                        icon: Icons.favorite,
+                        activeColor: Colors.red,
+                        inactiveColor: Colors.white,
+                        onPressed: () => controller.toggleFavorite(movie),
+                        isActive: movie.isFavorite,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildAnimatedIconButton(
+                        icon: Icons.bookmark,
+                        activeColor: Colors.yellow,
+                        inactiveColor: Colors.white,
+                        onPressed: () => controller.toggleWatchlist(movie),
+                        isActive: movie.isWatchlisted,
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      movie.voteAverage.toStringAsFixed(1),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          movie.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+          const SizedBox(height: 4),
+          Text(
+            movie.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -315,5 +323,10 @@ class HomePage extends GetView<HomeController> {
         // Handle navigation
       },
     );
+  }
+
+  void _navigateToMovieDetail(MovieModel movie) {
+    _logger.i('Navigating to movie detail for: ${movie.title}');
+    Get.to(() => MovieDetailPage(), arguments: movie);
   }
 }

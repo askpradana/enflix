@@ -18,6 +18,9 @@ class BaseApiService {
   /// API key for token bearer
   final String apiToken = AppSecret.apiToken;
 
+  /// Default account ID
+  final String defaultAccountID = '21424578';
+
   /// Session ID
   String? _sessionId;
 

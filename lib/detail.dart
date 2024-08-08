@@ -42,6 +42,7 @@ class MovieDetailPage extends GetView<MovieDetailController> {
                 _buildMovieInfo(controller),
                 _buildActionButtons(controller),
                 _buildMovieOverview(controller),
+                _buildSimilarMovies(controller),
               ],
             ),
           );
@@ -209,6 +210,68 @@ class MovieDetailPage extends GetView<MovieDetailController> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSimilarMovies(MovieDetailController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'Similar Movies',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: controller.similarMovies.length,
+            itemBuilder: (context, index) {
+              final movie = controller.similarMovies[index];
+              return Container(
+                width: 120,
+                margin: EdgeInsets.only(
+                    left: 16,
+                    right:
+                        index == controller.similarMovies.length - 1 ? 16 : 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            'https://image.tmdb.org/t/p/w200${movie.posterPath}',
+                        height: 160,
+                        width: 120,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            Container(color: Colors.grey[800]),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      movie.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

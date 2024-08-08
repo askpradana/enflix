@@ -10,6 +10,7 @@ class MovieDetailController extends GetxController {
 
   late Rx<MovieDetailModel> movieDetail;
   final RxBool isLoading = true.obs;
+  final RxList<MovieModel> similarMovies = <MovieModel>[].obs;
 
   MovieDetailController(MovieModel movie) {
     movieDetail = MovieDetailModel.fromMovieModel(movie).obs;
@@ -19,6 +20,7 @@ class MovieDetailController extends GetxController {
   void onInit() {
     super.onInit();
     fetchMovieDetails();
+    fetchSimilarMovies();
   }
 
   /// Fetches detailed movie information from the API.
@@ -99,6 +101,31 @@ class MovieDetailController extends GetxController {
       }
     } catch (e) {
       _logger.e('Error toggling watchlist: $e');
+    }
+  }
+
+  Future<void> fetchSimilarMovies() async {
+    try {
+      _logger.i('Fetching similar movies for movie ${movieDetail.value.id}');
+      final response = await _api.get('/movie/${movieDetail.value.id}/similar');
+
+      if (response is Map<String, dynamic> && response.containsKey('results')) {
+        List<MovieModel> fetchedMovies = [];
+        for (var movieData in (response['results'] as List).take(10)) {
+          try {
+            MovieModel movie = MovieModel.fromJson(movieData);
+            fetchedMovies.add(movie);
+          } catch (e) {
+            _logger.e('Error parsing movie data: $e');
+            _logger.d('Problematic movie data: $movieData');
+          }
+        }
+        similarMovies.value = fetchedMovies;
+      } else {
+        _logger.w('Unexpected response structure: $response');
+      }
+    } catch (e) {
+      _logger.e('Error fetching similar movies: $e');
     }
   }
 }

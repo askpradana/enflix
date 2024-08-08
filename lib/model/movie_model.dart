@@ -7,6 +7,17 @@ abstract class MovieModel {
   set isFavorite(bool value);
   bool get isWatchlisted;
   set isWatchlisted(bool value);
+
+  static MovieModel fromJson(Map<String, dynamic> json) {
+    // Determine which concrete class to instantiate based on the available data
+    if (json.containsKey('runtime')) {
+      return MovieDetailModel.fromJson(json);
+    } else if (json.containsKey('vote_average')) {
+      return PopularMovie.fromJson(json);
+    } else {
+      return NowPlayingMovie.fromJson(json);
+    }
+  }
 }
 
 /// Model for now playing section

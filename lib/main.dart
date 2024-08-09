@@ -1,4 +1,4 @@
-import 'package:enterkomputer/login.dart';
+import 'package:enterkomputer/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: HomePage(),
     );
   }
 }

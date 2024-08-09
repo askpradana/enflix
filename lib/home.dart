@@ -1,4 +1,5 @@
 import 'package:enterkomputer/detail.dart';
+import 'package:enterkomputer/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,7 +20,12 @@ class HomePage extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Movie App', style: TextStyle(color: Colors.white)),
+        title: Obx(
+          () => Text(
+            controller.titleAppbar.value,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
         backgroundColor: Colors.black,
         elevation: 0,
         centerTitle: true,
@@ -27,12 +33,21 @@ class HomePage extends GetView<HomeController> {
       body: Obx(() => controller.isLoading.value
           ? const Center(child: CircularProgressIndicator())
           : _buildContent()),
-      bottomNavigationBar: _buildBottomNavBar(),
+      bottomNavigationBar: Obx(() => _buildBottomNavBar()),
     );
   }
 
-  /// Builds the main content of the page.
   Widget _buildContent() {
+    return IndexedStack(
+      index: controller.currentIndex.value,
+      children: [
+        _buildHomeContent(),
+        ProfilePage(),
+      ],
+    );
+  }
+
+  Widget _buildHomeContent() {
     return CustomScrollView(
       slivers: [
         _buildNowPlayingSection(),
@@ -318,10 +333,8 @@ class HomePage extends GetView<HomeController> {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
-      currentIndex: 0,
-      onTap: (index) {
-        // Handle navigation
-      },
+      currentIndex: controller.currentIndex.value,
+      onTap: controller.changeTabIndex,
     );
   }
 

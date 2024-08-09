@@ -1,3 +1,4 @@
+import 'package:enterkomputer/controller/profile_controller.dart';
 import 'package:enterkomputer/core/api.dart';
 import 'package:enterkomputer/model/movie_model.dart';
 import 'package:get/get.dart';
@@ -29,10 +30,26 @@ class HomeController extends GetxController {
   /// Maximum number of popular movies to display.
   static const int _maxPopularMovies = 20;
 
+  /// Implement navigation bar functionality.
+  final RxInt currentIndex = 0.obs;
+
+  RxString titleAppbar = 'Enflix'.obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchMovies();
+  }
+
+  void changeTabIndex(int index) {
+    currentIndex.value = index;
+    if (index == 0) {
+      titleAppbar.value = 'Enflix';
+    } else {
+      titleAppbar.value = 'Profile';
+      ProfileController controller = Get.find();
+      controller.checkSession();
+    }
   }
 
   /// Fetch movies data.

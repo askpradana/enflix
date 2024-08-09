@@ -4,11 +4,21 @@ import 'package:enterkomputer/model/movie_model.dart';
 import 'package:logger/logger.dart';
 import 'package:enterkomputer/webview.dart';
 
+/// Controller for managing user profile data and authentication.
 class ProfileController extends GetxController {
+  /// List of movies in the user's watchlist.
   final RxList<MovieModel> watchlistMovies = <MovieModel>[].obs;
+
+  /// List of movies marked as favorites by the user.
   final RxList<MovieModel> favoriteMovies = <MovieModel>[].obs;
+
+  /// Indicates whether the controller is currently loading data.
   final RxBool isLoading = true.obs;
+
+  /// The current session ID for the authenticated user.
   final RxString sessionId = ''.obs;
+
+  /// The request token used for authentication.
   final RxString requestToken = ''.obs;
 
   final BaseApiService _api = BaseApiService();
@@ -20,6 +30,7 @@ class ProfileController extends GetxController {
     checkSession();
   }
 
+  /// Checks if a valid session exists and fetches profile data if it does.
   void checkSession() {
     sessionId.value = _api.sessionId ?? '';
     if (sessionId.isNotEmpty) {
@@ -29,6 +40,7 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Initiates the login process by requesting a new token.
   Future<void> initiateLogin() async {
     try {
       isLoading.value = true;
@@ -46,12 +58,14 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Opens a WebView for user authentication.
   Future<void> _openWebView() async {
     await Get.to(() => WebViewAuth(requestToken: requestToken.value));
     await Future.delayed(const Duration(seconds: 1));
     await _createSession();
   }
 
+  /// Creates a new session after successful authentication.
   Future<void> _createSession() async {
     try {
       var response = await _api.post(
@@ -69,6 +83,7 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Fetches all profile-related data (watchlist and favorites).
   Future<void> fetchProfileData() async {
     try {
       isLoading.value = true;
@@ -83,6 +98,7 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Fetches the user's movie watchlist.
   Future<void> fetchWatchlist() async {
     try {
       final response =
@@ -97,6 +113,7 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Fetches the user's favorite movies.
   Future<void> fetchFavorites() async {
     try {
       final response =

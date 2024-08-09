@@ -104,6 +104,7 @@ class MovieDetailController extends GetxController {
     }
   }
 
+  /// Fetches similar movies from the API.
   Future<void> fetchSimilarMovies() async {
     try {
       _logger.i('Fetching similar movies for movie ${movieDetail.value.id}');
